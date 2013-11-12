@@ -37,9 +37,16 @@ module Piggybak
           \n  <% if "\#{params[:controller]}#\#\{params[:action]\}" == "piggybak/orders#submit" -%>
       <%= javascript_include_tag "piggybak/piggybak-application" %>\n  <% end -%>
       eos
-    
-      insert_into_file 'app/views/layouts/application.html.erb', jit_code_block, :after => "<%= javascript_include_tag \"application\" %>"
-    
+      begin
+        layout = 'app/views/layouts/application.html.erb'
+        insert_into_file layout, jit_code_block, :after => "<%= javascript_include_tag \"application\" %>"
+      rescue Errno::ENOENT
+        error "We couln't find the layout file #{layout.inspect}"
+        error "Don't forget to add the following code (use your equivalent to ERB) to your layout:"
+        error jit_code_block
+        error ""
+        error ""
+      end
     end
     
     desc "welcome", "invite to piggybak"
