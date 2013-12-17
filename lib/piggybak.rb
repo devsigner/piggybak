@@ -59,6 +59,8 @@ module Piggybak
 
     # Needed for development
     config.to_prepare do
+      ActiveMerchant::Billing::Base.mode = Piggybak.config.activemerchant_mode
+      
       Piggybak.config.line_item_types.each do |k, v|
         plural_k = k.to_s.pluralize.to_sym
         if v[:nested_attrs]

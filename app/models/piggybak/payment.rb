@@ -39,8 +39,6 @@ module Piggybak
     def process(order)
       return true if !self.new_record?
 
-      ActiveMerchant::Billing::Base.mode = Piggybak.config.activemerchant_mode
-
       payment_gateway = self.payment_method.klass.constantize
       gateway = payment_gateway::KLASS.new(self.payment_method.key_values)
       p_credit_card = ActiveMerchant::Billing::CreditCard.new(self.credit_card)
