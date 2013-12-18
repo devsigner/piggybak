@@ -1,0 +1,34 @@
+<div class="item">
+<%= payment.label :number %>
+<% if @order.errors.keys.include?("payments.number".to_sym) %>
+<span class="field_with_errors">
+<%= payment.text_field :number, :class => "required" %>
+</span>
+<% else -%>
+<%= payment.text_field :number, :class => "required" %>
+<% end -%>
+</div>
+
+<div class="item">
+<%= payment.label :verification_value %>
+<% if @order.errors.keys.include?("payments.verification_value".to_sym) %>
+<span class="field_with_errors">
+<%= payment.text_field :verification_value, :class => "required" %>
+</span>
+<% else -%>
+<%= payment.text_field :verification_value, :class => "required" %>
+<% end -%>
+</div>
+
+<div class="item">
+<%= payment.label :month %>
+<% if @order.errors.keys.include?("payments.verification_value".to_sym) %>
+<span class="field_with_errors">
+<%= payment.select :month, 1.upto(12).to_a %> /
+<%= payment.select :year, Time.now.year.upto(Time.now.year + 10).to_a %>
+</span>
+<% else -%>
+<%= payment.select :month, 1.upto(12).to_a %> /
+<%= payment.select :year, Time.now.year.upto(Time.now.year + 10).to_a %>
+<% end -%>
+</div>

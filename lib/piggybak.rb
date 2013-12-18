@@ -382,6 +382,7 @@ module Piggybak
           navigation_label "Configuration"
           weight 2
           list do
+            field :type
             field :description
             field :active
           end
@@ -389,9 +390,7 @@ module Piggybak
             field :description do
               help "This is the label the user sees."
             end
-            field :klass do
-              label "Calculator"
-            end
+            field :type, :enum
             field :active
             field :payment_method_values do
               label "Metadata"

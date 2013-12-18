@@ -1,7 +1,7 @@
 module Piggybak
   module Config
     class << self
-      attr_accessor :payment_calculators
+      attr_accessor :activemerchant_gateways
       attr_accessor :shipping_calculators
       attr_accessor :tax_calculators
       attr_accessor :default_country
@@ -31,8 +31,7 @@ module Piggybak
         @email_sender = "support@piggybak.org"
         @order_cc = nil
 
-        @payment_calculators = ["::Piggybak::PaymentCalculator::Fake",
-                                "::Piggybak::PaymentCalculator::AuthorizeNet"]
+        @activemerchant_gateways = %w( BogusGateway AuthorizeNetGateway )
         @shipping_calculators = ["::Piggybak::ShippingCalculator::FlatRate",
                                  "::Piggybak::ShippingCalculator::Free",
                                  "::Piggybak::ShippingCalculator::Range"]

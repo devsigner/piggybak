@@ -3,6 +3,7 @@ module Piggybak
     def submit
       response.headers['Cache-Control'] = 'no-cache'
       @cart = Piggybak::Cart.new(request.cookies["cart"])
+      @payment_methods = PaymentMethod.active
 
       if request.post?
         create_order

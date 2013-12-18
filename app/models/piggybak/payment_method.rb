@@ -1,44 +1,63 @@
 module Piggybak 
   class PaymentMethod < ActiveRecord::Base
+    FILES = File.join(File.dirname(__FILE__), 'payment_methods', '*.rb')
+    APP_FILES = File.join(Rails.root, 'app', 'models', 'payment_methods', '*.rb')
+
+    # FIXME: should be renamed :payment_method_settings for clarity...
     has_many :payment_method_values, :dependent => :destroy
-    alias :metadata :payment_method_values
+
+    class_attribute :required_settings, instance_writer: false
+    self.required_settings = []
 
     accepts_nested_attributes_for :payment_method_values, :allow_destroy => true
 
-    validates_presence_of :klass
     validates_presence_of :description
-    
-    attr_accessible :active, :payment_method_values_attributes, :description,
-                    :klass
-    def klass_enum 
-      Piggybak.config.payment_calculators
-    end
+    validate :required_settings_must_be_specified
 
-    validates_each :payment_method_values do |record, attr, value|
-      if record.klass.present?
-        payment_method = record.klass.constantize
-        metadata_keys = value.collect { |v| v.key }.sort
-        if payment_method::KEYS.sort != metadata_keys
-          if payment_method::KEYS.empty?
-            record.errors.add attr, "You don't need any metadata for this method."
-          else
-            record.errors.add attr, "You must define key values for #{payment_method::KEYS.join(', ')} for this payment method."
-          end
+    attr_accessible :type, :active, :payment_method_values_attributes, :description
+
+    scope :active, where(active: true)
+
+    @@types_by_name = nil
+    
+    # { "Website Gateway" => "Piggybak::PaymentMethod::WebsiteGateway", ... }
+    def self.types_by_name
+      @@types_by_name ||= begin
+        # Ensure all PaymentMethod subclasses are loaded
+        Dir.glob("{#{FILES},#{APP_FILES}}").each(&method(:require))
+        
+        PaymentMethod.subclasses.map(&:name).each_with_object({}) do |class_name, types|
+          types[class_name.demodulize.titleize] = class_name
         end
       end
     end
-    validates_each :active do |record, attr, value|
-      if value && PaymentMethod.find_all_by_active(true).select { |p| p != record }.size > 0
-        record.errors.add attr, "You may only have one active payment method."
-      end
-    end
 
-    def key_values
-      self.metadata.inject({}) { |h, k| h[k.key.to_sym] = k.value; h }
+    # Allows RailsAdmin to present type names
+    def type_enum
+      PaymentMethod.types_by_name
     end
 
     def admin_label
-      "#{self.description}"
+      description
     end
+
+    def template_name
+      self.class.name.demodulize.underscore
+    end
+
+    def settings(reload = false)
+      payment_method_values(reload).each_with_object({}) do |setting, settings|
+        settings[setting.key.to_sym] = setting.value
+      end
+    end
+
+    protected
+      def required_settings_must_be_specified
+        required_settings.each do |key|
+          unless payment_method_values.any? { |setting| setting.key == key }
+            errors.add(:payment_method_values, "#{key} is required")
+          end
+        end
+      end
   end
 end
