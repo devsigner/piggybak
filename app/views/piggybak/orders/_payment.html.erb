@@ -4,14 +4,15 @@
 	<ul>
 		<% @payment_methods.each do |method| %>
 			<li>
-				<h4><%= method.description %></h4>
+				<%= f.radio_button :payment_method_id, method.id %>
+				<%= f.label :payment_method_id, method.description %>
+				
 				<%= f.fields_for :line_items, @order.line_items.detect { |li| li.line_item_type == "payment" } do |line_item_f| %>
 					<%= line_item_f.hidden_field :line_item_type, { :value => "payment" } %>
-					
 					<%= line_item_f.fields_for :payment do |payment| %>
-						<%= payment.hidden_field :payment_method_id, value: method.id %>
+					  <%= payment.hidden_field :payment_method_id, value: method.id %>
 						<%= render "piggybak/orders/payment_methods/#{method.template_name}", payment: payment, payment_method: method %>
-					<% end -%>
+					<% end -%> 
 				<% end -%>
 			</li>
 		<% end %>

@@ -85,23 +85,24 @@ module Piggybak
     def preprocess_payment
       if self.new_record?
         self.build_payment if self.payment.nil?
-        self.payment.payment_method_id ||= Piggybak::PaymentMethod.find_by_active(true).id
+        self.payment.payment_method_id ||= self.order.payment_method_id #Piggybak::PaymentMethod.active.first.id
         self.description = "Payment"
         self.price = 0
       end
     end
 
-    def postprocess_payment
-      return true if !self.new_record?
-
-      if self.payment.process(self.order)
-        self.price = -1*self.order.total_due
-        self.order.total_due = 0
-        return true
-      else
-        return false
-      end
-    end
+    # TODO: put back (payment branch)
+    # def postprocess_payment
+    #   return true if !self.new_record?
+    # 
+    #   if self.payment.process(self.order)
+    #     self.price = -1*self.order.total_due
+    #     self.order.total_due = 0
+    #     return true
+    #   else
+    #     return false
+    #   end
+    # end
 
     # Dependent destroy is not working as expected, so this is in place
     def destroy_associated_item

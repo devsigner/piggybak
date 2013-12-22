@@ -6,17 +6,18 @@ module Piggybak
 
     validates_presence_of :status
     validates_presence_of :payment_method_id
-    validates_presence_of :month
-    validates_presence_of :year
+    # TODO: put back cc validation (payment branch)
+    # validates_presence_of :month
+    # validates_presence_of :year
 
     attr_accessor :number
     attr_accessor :verification_value
 
     attr_accessible :number, :verification_value, :month, :year,
-                    :transaction_id, :masked_number, :payment_method_id
+                    :masked_number, :payment_method_id
     
     def status_enum
-      ["paid"]
+      %w( pending failed paid )
     end
 
     def month_enum
@@ -36,23 +37,24 @@ module Piggybak
         "last_name" => self.line_item ? self.line_item.order.billing_address.lastname : nil }
     end
 
-    def process(order)
-      return true if !self.new_record?
-
-      payment_gateway = self.payment_method.klass.constantize
-      gateway = payment_gateway::KLASS.new(self.payment_method.key_values)
-      p_credit_card = ActiveMerchant::Billing::CreditCard.new(self.credit_card)
-      gateway_response = gateway.authorize(order.total_due*100, p_credit_card, :address => order.avs_address)
-      if gateway_response.success?
-        self.attributes = { :transaction_id => payment_gateway.transaction_id(gateway_response),
-                            :masked_number => self.number.mask_cc_number }
-        gateway.capture(order.total_due*100, gateway_response.authorization, { :credit_card => p_credit_card } )
-        return true
-      else
-        self.errors.add :payment_method_id, gateway_response.message
-        return false
-      end
-    end
+    # TODO: put back (payment branch)
+    # def process(order)
+    #   return true if !self.new_record?
+    # 
+    #   payment_gateway = self.payment_method.klass.constantize
+    #   gateway = payment_gateway::KLASS.new(self.payment_method.key_values)
+    #   p_credit_card = ActiveMerchant::Billing::CreditCard.new(self.credit_card)
+    #   gateway_response = gateway.authorize(order.total_due*100, p_credit_card, :address => order.avs_address)
+    #   if gateway_response.success?
+    #     self.attributes = { :transaction_id => payment_gateway.transaction_id(gateway_response),
+    #                         :masked_number => self.number.mask_cc_number }
+    #     gateway.capture(order.total_due*100, gateway_response.authorization, { :credit_card => p_credit_card } )
+    #     return true
+    #   else
+    #     self.errors.add :payment_method_id, gateway_response.message
+    #     return false
+    #   end
+    # end
 
     # Note: It is not added now, because for methods that do not store
     # user profiles, a credit card number must be passed
@@ -72,18 +74,19 @@ module Piggybak
       end
     end
 
-    validates_each :payment_method_id do |record, attr, value|
-      if record.new_record?
-        credit_card = ActiveMerchant::Billing::CreditCard.new(record.credit_card)
-     
-        if !credit_card.valid?
-          credit_card.errors.each do |key, value|
-            if value.any? && !["first_name", "last_name", "type"].include?(key)
-              record.errors.add key, (value.is_a?(Array) ? value.join(', ') : value)
-            end
-          end
-        end
-      end
-    end
+    # TODO: put back (payment branch)
+    # validates_each :payment_method_id do |record, attr, value|
+    #   if record.new_record?
+    #     credit_card = ActiveMerchant::Billing::CreditCard.new(record.credit_card)
+    #  
+    #     if !credit_card.valid?
+    #       credit_card.errors.each do |key, value|
+    #         if value.any? && !["first_name", "last_name", "type"].include?(key)
+    #           record.errors.add key, (value.is_a?(Array) ? value.join(', ') : value)
+    #         end
+    #       end
+    #     end
+    #   end
+    # end
   end
 end

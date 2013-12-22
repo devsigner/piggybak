@@ -13,7 +13,19 @@ module Piggybak
         @order.initialize_user(current_user)
       end
     end
-  
+
+    # FIXME: need to validate the integrity of the request (payment branch)
+    # As is, it might be forged by the user
+    def notify
+      @order = Piggybak::Order.find(params[:id])
+      @order.paid!
+      render nothing: true
+    end
+
+    def pending
+      @order = Piggybak::Order.find(params[:id])
+    end
+
     def receipt
       response.headers['Cache-Control'] = 'no-cache'
 
@@ -119,7 +131,7 @@ module Piggybak
             log { "Order saved: #{@order.inspect}" }
             cookies["cart"] = { :value => '', :path => '/' }
             session[:last_order] = @order.id
-            redirect_to piggybak.receipt_url 
+            @order.handle_request(self)
           else
             log(:warn) { "Order failed to save #{@order.errors.full_messages} with #{@order.inspect}." }
           end

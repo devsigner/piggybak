@@ -27,7 +27,8 @@ module Piggybak
 
     attr_accessible :user_id, :email, :phone, :billing_address_attributes, 
                     :shipping_address_attributes, :line_items_attributes,
-                    :order_notes_attributes, :details, :recorded_changer, :ip_address
+                    :order_notes_attributes, :details, :recorded_changer, :ip_address,
+                    :payment_method_id
                    
     def deliver_order_confirmation
       Piggybak::Notifier.order_notification(self).deliver
@@ -112,17 +113,46 @@ module Piggybak
       end
       self.total_due = self.total
 
-      # Postprocess payment last
-      self.line_items.payments.each do |line_item|
-        method = "postprocess_payment"
-        if line_item.respond_to?("postprocess_payment")
-          if !line_item.postprocess_payment
-            return false
-          end
-        end
-      end
+      # TODO: put back (payment branch)
+      # # Postprocess payment last
+      # self.line_items.payments.each do |line_item|
+      #   method = "postprocess_payment"
+      #   if line_item.respond_to?("postprocess_payment")
+      #     if !line_item.postprocess_payment
+      #       return false
+      #     end
+      #   end
+      # end
 
       true
+    end
+
+    def paid!
+      payment_line_item.price = -total_due
+      payment_line_item.payment.status = "paid"
+      self.total_due = 0.0
+      update_status
+      save!
+    end
+
+    def payment_line_item
+      line_items.payments.first
+    end
+
+    def payment_method
+      payment_line_item.try(:payment).try(:payment_method)
+    end
+
+    def payment_method_id
+      @payment_method_id || payment_method.try(:id)
+    end
+
+    def payment_method_id=(id)
+      @payment_method_id = id.to_i if id.present?
+    end
+
+    def handle_request(controller)
+      payment_method.handle_request(self, controller)
     end
 
     def record_order_note
@@ -154,6 +184,10 @@ module Piggybak
         payment_line_item = Piggybak::LineItem.new({ :line_item_type => "payment" })
         payment_line_item.build_payment 
         self.line_items << payment_line_item
+      end
+      
+      if @payment_method_id
+        self.line_items = self.line_items.reject { |li| li.line_item_type == "payment" && li.payment.payment_method_id != @payment_method_id }
       end
     end
 

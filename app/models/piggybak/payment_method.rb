@@ -32,6 +32,13 @@ module Piggybak
       end
     end
 
+    # Hook with access to the OrdersController instance, executed after an order has been created
+    # Allows to customize the flow, especially useful for web gateways (or pending payments)
+    # By default, redirects to the receipt url
+    def handle_request(order, controller)
+      controller.redirect_to piggybak.receipt_url
+    end
+
     # Allows RailsAdmin to present type names
     def type_enum
       PaymentMethod.types_by_name
@@ -54,7 +61,7 @@ module Piggybak
     protected
       def required_settings_must_be_specified
         required_settings.each do |key|
-          unless payment_method_values.any? { |setting| setting.key == key }
+          unless payment_method_values.any? { |setting| setting.key == key.to_s }
             errors.add(:payment_method_values, "#{key} is required")
           end
         end

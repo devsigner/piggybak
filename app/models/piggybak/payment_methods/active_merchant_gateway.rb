@@ -1,8 +1,7 @@
 module Piggybak
   module PaymentMethods
     class ActiveMerchantGateway < PaymentMethod
-      # TODO: implement proprer ActiveMerchant gateway communication
-      # As we don't need it, we won't bother with it
+      # TODO: implement proprer ActiveMerchant gateway communication (payment branch)
       validates_presence_of :gateway_klass
       validate :gateway_must_be_supported
 

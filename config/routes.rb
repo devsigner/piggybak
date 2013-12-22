@@ -12,6 +12,7 @@ Piggybak::Engine.routes.draw do
     match "/orders/shipping" => "orders#shipping", :as => :orders_shipping
     match "/orders/tax" => "orders#tax", :as => :orders_tax
     match "/orders/geodata" => "orders#geodata", :as => :orders_geodata
+    match "/orders/:id/notify" => "orders#notify", :as => :notify_order
 
     # list orders
     match "/orders" => "orders#list", :as => :orders_list

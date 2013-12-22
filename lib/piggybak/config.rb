@@ -5,6 +5,7 @@ module Piggybak
       attr_accessor :shipping_calculators
       attr_accessor :tax_calculators
       attr_accessor :default_country
+      attr_accessor :default_currency
       attr_accessor :activemerchant_mode
       attr_accessor :email_sender
       attr_accessor :order_cc
@@ -63,6 +64,7 @@ module Piggybak
                            }
 
         @default_country = "US"
+        @default_currency = "USD"
 
         @activemerchant_mode = :test
 
