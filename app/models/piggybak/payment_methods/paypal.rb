@@ -35,6 +35,11 @@ module Piggybak
         "#{service_url}?#{params.to_query}"
       end
       
+      def valid_notification?(request)
+        # TODO: implement validation using ActiveMerchant
+        true
+      end
+      
       protected
         def add_line_items(params, line_items)
           i = 1
