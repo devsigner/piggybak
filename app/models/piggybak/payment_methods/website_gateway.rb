@@ -21,12 +21,6 @@ module Piggybak
         controller.piggybak.notify_order_url(order.id)
       end
       
-      def return_url(*)
-        "http://www.example.com/"
-      end
-      alias_method :notify_url, :return_url
-      alias_method :cancel_url, :return_url
-      
       def template_name
         "website_gateway"
       end
