@@ -9,7 +9,7 @@ module Piggybak
         raise NotImplementedError, "subclasses must override `gateway_url'"
       end
       
-      def valid_notification?(request)
+      def valid_notification?(order, request)
         raise NotImplementedError, "subclasses must override `valid_notification'"
       end
       

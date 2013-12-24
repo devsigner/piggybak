@@ -135,6 +135,11 @@ module Piggybak
       save!
     end
 
+    def failed!
+      payment_line_item.payment.status = "failed"
+      save!
+    end
+
     def payment_line_item
       line_items.payments.first
     end

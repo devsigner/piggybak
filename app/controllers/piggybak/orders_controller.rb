@@ -18,11 +18,10 @@ module Piggybak
     # As is, it might be forged by the user
     def notify
       @order = Piggybak::Order.find(params[:id])
-      if @order.payment_method.valid_notification?(request)
+      if @order.payment_method.valid_notification?(@order, request)
         @order.paid!
       else
-        # TODO: mark payment as failed
-        # @order
+        @order.failed!
       end
       render nothing: true
     end

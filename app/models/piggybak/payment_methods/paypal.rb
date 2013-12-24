@@ -35,9 +35,13 @@ module Piggybak
         "#{service_url}?#{params.to_query}"
       end
       
-      def valid_notification?(request)
+      def valid_notification?(order, request)
         # TODO: implement validation using ActiveMerchant
-        true
+        # notification = ActiveMerchant::Billing::Integrations::Paypal::Notification.new(request.raw_post)
+        # if notification.acknowledge
+        #   if notify.complete? and order.total_due == notification.amount
+        #   end
+        # end
       end
       
       protected
