@@ -34,7 +34,7 @@ module Piggybak
       response.headers['Cache-Control'] = 'no-cache'
 
       if !session.has_key?(:last_order)
-        redirect_to root_url 
+        redirect_to '/' 
         return
       end
 
