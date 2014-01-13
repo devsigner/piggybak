@@ -159,24 +159,42 @@ module Piggybak
           object_label_method :admin_label
 
           show do
+            field :recorded_changer, :hidden do
+              partial "recorded_changer"
+            end
             field :status
+            field :details do
+              partial "order_details"
+              help ""
+              visible do
+                !bindings[:object].new_record?
+              end
+            end
+
             field :total do
               formatted_value do
-                "$%.2f" % value
+                ActionController::Base.helpers.number_to_currency  value
               end
             end
             field :total_due do
               formatted_value do
-                "$%.2f" % value
+                ActionController::Base.helpers.number_to_currency  value
+              end
+            end
+
+            field :line_items do
+              label "items"
+              pretty_value do
+                value.map{|l| l.admin_label }.compact.join("<br/>").html_safe
               end
             end
             field :created_at
+
             field :email
             field :phone
 
             field :user if defined?(User)
 
-            field :line_items
             field :billing_address
             field :shipping_address
             field :order_notes do
@@ -187,6 +205,7 @@ module Piggybak
             field :ip_address
             field :user_agent
           end
+
           list do
             field :id
             field :billing_address do
@@ -199,7 +218,7 @@ module Piggybak
             end
             field :total do
               formatted_value do
-                "$%.2f" % value
+                ActionController::Base.helpers.number_to_currency value
               end
             end
             field :created_at do
