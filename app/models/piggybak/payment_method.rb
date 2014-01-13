@@ -36,7 +36,7 @@ module Piggybak
     # Allows to customize the flow, especially useful for web gateways (or pending payments)
     # By default, redirects to the receipt url
     def handle_request(order, controller)
-      controller.redirect_to piggybak.receipt_url
+      controller.redirect_to controller.piggybak.receipt_url
     end
 
     # Allows RailsAdmin to present type names
