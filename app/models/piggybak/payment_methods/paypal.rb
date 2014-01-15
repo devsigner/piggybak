@@ -41,7 +41,6 @@ module Piggybak
         # TODO: implement validation using ActiveMerchant
         notification = ActiveMerchant::Billing::Integrations::Paypal::Notification.new(request.raw_post)
         if Rails.env.development? || notification.acknowledge
-          binding.pry
           notification.complete? and money_order_in_cents( order ) == notification.amount
         end
       end
