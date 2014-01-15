@@ -120,13 +120,6 @@ module Piggybak
               partial "polymorphic_nested"
               help ""
             end
-            Piggybak.config.line_item_types.each do |k, v|
-              if v[:nested_attrs]
-                field k do
-                  active true
-                end
-              end
-            end
             field :sellable_id, :enum do
               label "Sellable"
               help "Required"
@@ -159,18 +152,13 @@ module Piggybak
           object_label_method :admin_label
 
           show do
-            field :recorded_changer, :hidden do
-              partial "recorded_changer"
-            end
             field :status
-            field :details do
-              partial "order_details"
-              help ""
-              visible do
-                !bindings[:object].new_record?
+            field :line_items do
+              label "items"
+              pretty_value do
+                value.map{|l| l.admin_label }.compact.join("<br/>").html_safe
               end
             end
-
             field :total do
               formatted_value do
                 ActionController::Base.helpers.number_to_currency  value
@@ -182,12 +170,6 @@ module Piggybak
               end
             end
 
-            field :line_items do
-              label "items"
-              pretty_value do
-                value.map{|l| l.admin_label }.compact.join("<br/>").html_safe
-              end
-            end
             field :created_at
 
             field :email
@@ -226,11 +208,13 @@ module Piggybak
             end
             field :status
           end
+
           edit do
             field :recorded_changer, :hidden do
               partial "recorded_changer"
             end
             field :status do
+              help ""
               visible do
                 !bindings[:object].new_record?
               end 
@@ -247,30 +231,34 @@ module Piggybak
               end
             end
 
-            field :user if defined?(User)
-            field :email
-            field :phone
-            field :ip_address do
-              partial "ip_address"
+            group "Customer" do
+              field :user if defined?(User)
+              field :email
+              field :phone
+              field :ip_address do
+                partial "ip_address"
+                help ""
+              end
+              field :user_agent do
+                read_only true
+                help ""
+              end
             end
-            field :user_agent do
-              read_only true
+            group "Address" do
+              field :billing_address do
+                help "Required"
+              end
+              field :shipping_address do
+                help "Required"
+              end
             end
-            field :billing_address do
-              active true
-              help "Required"
+            group "Items" do
+              field :line_items do
+                active true
+                help ""
+              end
             end
-            field :shipping_address do
-              active true
-              help "Required"
-            end
-            field :line_items do
-              active true
-              help ""
-            end
-            field :order_notes do
-              active true
-            end
+            field :order_notes
           end
         end
      
@@ -356,40 +344,6 @@ module Piggybak
 
           edit do
             field :payment_method do
-              read_only do 
-                !bindings[:object].new_record?
-              end 
-            end
-            field :masked_number do
-              help "Required"
-              label "Number"
-              visible do
-                !bindings[:object].new_record?
-              end 
-              read_only do
-                !bindings[:object].new_record?
-              end 
-            end
-            field :number do
-              help "Required"
-              visible do
-                bindings[:object].new_record?
-              end 
-            end
-            field :verification_value do
-              help "Required"
-              visible do
-                bindings[:object].new_record?
-              end 
-            end
-            field :month do
-              label "Exp. Month"
-              read_only do 
-                !bindings[:object].new_record?
-              end 
-            end
-            field :year do
-              label "Exp. Year"
               read_only do 
                 !bindings[:object].new_record?
               end 
