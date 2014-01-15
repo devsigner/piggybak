@@ -12,7 +12,7 @@ Piggybak::Engine.routes.draw do
     match "/orders/shipping" => "orders#shipping", :as => :orders_shipping
     match "/orders/tax" => "orders#tax", :as => :orders_tax
     match "/orders/geodata" => "orders#geodata", :as => :orders_geodata
-    match "/orders/:id/notify" => "orders#notify", :as => :notify_order
+    match "/orders/:id/notify" => "orders#notify", :via => [:get, :post], :as => :notify_order
 
     # list orders
     match "/orders" => "orders#list", :as => :orders_list
@@ -21,5 +21,6 @@ Piggybak::Engine.routes.draw do
     match "/admin/orders/:id/email" => "orders#email", :as => :email_order
     match "/admin/orders/:id/download" => "orders#download", :as => :download_order, :format => "txt"
     match "/admin/orders/:id/cancel" => "orders#cancel", :as => :cancel_order
+    match "/admin/orders/:id/paid" => "orders#paid", :as => :paid_order
   end
 end

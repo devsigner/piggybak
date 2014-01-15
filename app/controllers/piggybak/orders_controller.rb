@@ -1,5 +1,6 @@
 module Piggybak
   class OrdersController < ApplicationController
+
     def submit
       response.headers['Cache-Control'] = 'no-cache'
       @cart = Piggybak::Cart.new(request.cookies["cart"])
@@ -48,21 +49,22 @@ module Piggybak
     def download
       @order = Piggybak::Order.find(params[:id])
 
-      if can?(:download, @order)
-        render :layout => false
-      else
-        render "no_access"
-      end
+      render :layout => false
     end
 
     def email
       order = Piggybak::Order.find(params[:id])
 
-      if can?(:email, order)
         Piggybak::Notifier.order_notification(order).deliver
         flash[:notice] = "Email notification sent."
         OrderNote.create(:order_id => order.id, :note => "Email confirmation manually sent.", :user_id => current_user.id)
-      end
+
+      redirect_to rails_admin.edit_path('Piggybak::Order', order.id)
+    end
+
+    def paid
+      order = Piggybak::Order.find(params[:id])
+      order.paid!
 
       redirect_to rails_admin.edit_path('Piggybak::Order', order.id)
     end
@@ -70,7 +72,6 @@ module Piggybak
     def cancel
       order = Piggybak::Order.find(params[:id])
 
-      if can?(:cancel, order)
         order.recorded_changer = current_user.id
         order.disable_order_notes = true
 
@@ -85,9 +86,6 @@ module Piggybak
         OrderNote.create(:order_id => order.id, :note => "Order set to cancelled. Line items, shipments, tax removed.", :user_id => current_user.id)
         
         flash[:notice] = "Order #{order.id} set to cancelled. Order is now in unbalanced state."
-      else
-        flash[:error] = "You do not have permission to cancel this order."
-      end
 
       redirect_to rails_admin.edit_path('Piggybak::Order', order.id)
     end
