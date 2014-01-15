@@ -15,7 +15,7 @@ module Piggybak
     attr_accessor :recorded_changes, :recorded_changer,
                   :was_new_record, :disable_order_notes 
 
-    validates_presence_of :status, :email, :phone, :total, :total_due, :created_at, :ip_address, :user_agent
+    validates_presence_of :status, :email, :total, :total_due, :created_at, :ip_address, :user_agent
 
     after_initialize :initialize_defaults
     validate :number_payments
