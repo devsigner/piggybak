@@ -1,6 +1,8 @@
 module Piggybak 
   module PaymentMethods
-    class Paypal < WebsiteGateway
+    class Paypal < PaymentMethod
+      include ActiveMerchant::Billing::Integrations
+
       self.required_settings = [:email]
       
       class_attribute :default_params
@@ -37,11 +39,31 @@ module Piggybak
       
       def valid_notification?(order, request)
         # TODO: implement validation using ActiveMerchant
-        # notification = ActiveMerchant::Billing::Integrations::Paypal::Notification.new(request.raw_post)
-        # if notification.acknowledge
-        #   if notify.complete? and order.total_due == notification.amount
-        #   end
-        # end
+        notification = ActiveMerchant::Billing::Integrations::Paypal::Notification.new(request.raw_post)
+        if Rails.env.development? || notification.acknowledge
+          binding.pry
+          notification.complete? and money_order_in_cents( order ) == notification.amount
+        end
+      end
+
+      def handle_request(order, controller)
+        controller.redirect_to gateway_url(order, controller)
+      end
+
+      def return_url(order, controller)
+        controller.piggybak.receipt_url
+      end
+      
+      def cancel_url(order, controller)
+        controller.piggybak.receipt_url
+      end
+      
+      def notify_url(order, controller)
+        controller.piggybak.notify_order_url(order.id)
+      end
+      
+      def template_name
+        "paypal"
       end
       
       protected
@@ -69,7 +91,11 @@ module Piggybak
         def order_invoice(order)
           order.id
         end
-        
+
+        def money_order_in_cents( order )
+          Money.new(order.total_due * 100, -> { Piggybak::Config.default_currency }.call)
+        end
+
         def line_item_name(line_item)
           line_item.sellable.sku
         end
