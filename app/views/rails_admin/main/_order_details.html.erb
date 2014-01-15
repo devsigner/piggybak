@@ -2,37 +2,43 @@
 N/A
 <% else -%>
 <table cellpadding="5" cellspacing="0">
-        <% Piggybak::LineItem.sorted_line_item_types.each do |type| -%>
-	<tr>
-		<td width="150"><%= type.to_s.pluralize.titleize %></td>
-		<td><%= number_to_currency form.object.send("#{type}_charge") %></td>
-	</tr>
-	<% end -%>
-	<tr>
-		<td>Total</td>
-		<td><%= number_to_currency form.object.total %></td>
-	</tr>
-	<tr>
-		<td>Balance Due</td>
-		<td><%= number_to_currency form.object.total_due %></td>
-	</tr>
-	<tr>
-		<td>Created at</td>
-		<td><%= form.object.created_at.strftime("%m-%d-%Y") %></td>
-	</tr>
-	<% if form.object.status != "cancelled" -%>
-	<tr>
-		<td valign="top">Actions</td>
-		<td>
-			<ul>
-				<li><%= link_to "Resend Email Confirmation", piggybak.email_order_url(form.object.id) %></li>
-				<li><%= link_to "View as Text", piggybak.download_order_url(form.object.id) %></li>
-				<% if form.object.total_due == 0.00 -%>
-				<li><%= link_to "Cancel Order", piggybak.cancel_order_url(form.object.id) %> (This does not refund payments.)</li>
-				<% end -%>
-			</ul>
-		</td>
-	</tr>
-	<% end -%>
+  <tbody>
+    <% Piggybak::LineItem.sorted_line_item_types.each do |type| -%>
+      <tr>
+        <td width="150"><%= type.to_s.pluralize.titleize %></td>
+        <td><%= number_to_currency form.object.send("#{type}_charge") %></td>
+      </tr>
+    <% end -%>
+  </tbody>
+  <tfoot>
+    <tr>
+      <td>Total</td>
+      <td><%= number_to_currency form.object.total %></td>
+    </tr>
+    <tr>
+      <td>Balance Due</td>
+      <td><%= number_to_currency form.object.total_due %></td>
+    </tr>
+  </tfoot>
+  <tbody>
+    <tr>
+      <td>Created at</td>
+      <td><%= form.object.created_at.strftime("%m-%d-%Y") %></td>
+    </tr>
+    <% if form.object.status != "cancelled" -%>
+    <tr>
+      <td valign="top">Actions</td>
+      <td>
+          <p><%= link_to "Resend Email Confirmation", piggybak.email_order_url(form.object.id), class: "btn btn-info  btn-small" %></p>
+          <p><%= link_to "View as Text", piggybak.download_order_url(form.object.id), class: "btn btn-primary  btn-small" %></p>
+          <% if form.object.total_due == 0.00 -%>
+            <p><%= link_to "Cancel Order", piggybak.cancel_order_url(form.object.id), class: "btn btn-warning  btn-mini" %> (This does not refund payments.)</p>
+          <% else -%>
+            <p><%= link_to "Manualy Validate Paid Order!", piggybak.paid_order_url(form.object.id), class: "btn btn-success  btn-mini" %></p>
+          <% end -%>
+      </td>
+    </tr>
+    <% end -%>
+  </tbody>
 </table>
 <% end -%>

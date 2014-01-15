@@ -1,5 +1,7 @@
 module Piggybak
   class ShippingMethod < ActiveRecord::Base
+    include ActionView::Helpers::NumberHelper
+
     has_many :shipping_method_values, :dependent => :destroy
     alias :metadata :shipping_method_values
 
@@ -43,7 +45,7 @@ module Piggybak
         if klass.available?(method, cart)
           rate = klass.rate(method, cart)
           arr << {
-            :label => "#{method.description} $#{"%.2f" % rate}",
+            :label => "#{method.description} #{ActionController::Base.helpers.number_to_currency(rate)}",
             :id => method.id,
             :rate => rate }
           end
