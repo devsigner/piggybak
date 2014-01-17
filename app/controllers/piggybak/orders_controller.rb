@@ -21,6 +21,7 @@ module Piggybak
       @order = Piggybak::Order.find(params[:id])
       if @order.payment_method.valid_notification?(@order, request)
         @order.paid!
+        @order.deliver_order_confirmation
       else
         @order.failed!
       end
