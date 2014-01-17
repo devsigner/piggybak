@@ -203,6 +203,11 @@ module Piggybak
                 ActionController::Base.helpers.number_to_currency value
               end
             end
+            field :total_due do
+              formatted_value do
+                ActionController::Base.helpers.number_to_currency value
+              end
+            end
             field :created_at do
               strftime_format "%d-%m-%Y"
             end
