@@ -9,6 +9,7 @@ module Piggybak
       if request.post?
         create_order
       else
+        redirect_to piggybak.cart_path unless @cart.sellables.any?
         @order = Piggybak::Order.new
         @order.create_payment_shipment
         @order.initialize_user(current_user)
